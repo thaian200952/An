@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lưu Bút Dễ Thương</title>
+    <style>
+      /* Import Font */
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
+      /* Color Palette from Image */
+      :root {
+        --pale-cashmere: #e8dfd5;
+        --cinnamon-ice: #dbbba7;
+        --noble-black: #202124;
+        --burning-orange: #ff7124;
+        --blue-estate: #3b4883;
+        --wahoo-blue: #272d4e;
+        --white: #ffffff;
+      }
+
+      /* General Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--pale-cashmere);
+        color: var(--noble-black);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        text-align: center;
+      }
+
+      h1 {
+        color: var(--wahoo-blue);
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: var(--blue-estate);
+        margin-bottom: 40px;
+      }
+
+      /* Folder Grid */
+      .folder-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+        min-height: 200px; /* Placeholder space */
+      }
+
+      #empty-state {
+        color: var(--blue-estate);
+        font-size: 1.2rem;
+        width: 100%;
+        grid-column: 1 / -1; /* Make it span all columns */
+      }
+
+      .folder-item {
+        background-color: var(--blue-estate);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-height: 180px;
+      }
+
+      .folder-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .folder-icon svg {
+        width: 60px;
+        height: 60px;
+        fill: var(--pale-cashmere);
+        margin-bottom: 15px;
+      }
+
+      .folder-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: "Poppins", sans-serif;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      .btn-primary {
+        background-color: var(--burning-orange);
+        color: var(--white);
+      }
+
+      .btn-primary:hover {
+        background-color: #e66a20;
+        transform: scale(1.05);
+      }
+
+      .btn-secondary {
+        background-color: var(--cinnamon-ice);
+        color: var(--noble-black);
+      }
+
+      .btn-secondary:hover {
+        background-color: #c9a996;
+      }
+
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: none; /* Hidden by default */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal.active {
+        display: flex; /* Shown with JS */
+      }
+
+      .modal-content {
+        background-color: var(--white);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 500px;
+        animation: slide-down 0.4s ease-out;
+        position: relative;
+      }
+
+      @keyframes slide-down {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--cinnamon-ice);
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+      .modal-close:hover {
+        color: var(--burning-orange);
+      }
+
+      .modal-header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding-right: 20px;
+        font-size: 1.5rem;
+        color: var(--wahoo-blue);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--blue-estate);
+        text-align: left;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid var(--pale-cashmere);
+        font-family: "Poppins", sans-serif;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--burning-orange);
+      }
+
+      #editor-content {
+        min-height: 150px;
+        resize: vertical;
+      }
+
+      .sticker-palette {
+        margin-top: 10px;
+        padding: 10px;
+        background: var(--pale-cashmere);
+        border-radius: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .sticker {
+        font-size: 1.8rem;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      .sticker:hover {
+        transform: scale(1.3);
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 25px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Lưu Bút Của Chúng Ta</h1>
+      <p>Nơi lưu giữ những kỷ niệm đáng yêu</p>
+
+      <div id="folder-grid" class="folder-grid">
+        <div id="empty-state">
+          <p>
+            Chưa có kỷ niệm nào cả. <br />
+            Hãy là người đầu tiên tạo một chiếc nhé!
+          </p>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="add-new-btn">
+        Tạo kỷ niệm mới +
+      </button>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="password-modal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close" id="close-password-modal">×</span>
+        <h2 class="modal-header">Yêu cầu mật khẩu</h2>
+        <div class="form-group">
+          <label for="password-input">Mời bạn nhập mật khẩu để mở:</label>
+          <input
+            type="password"
+            id="password-input"
+            class="form-control"
+            placeholder="******"
+          />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="cancel-password-btn">
+            Hủy
+          </button>
+          <button class="btn btn-primary" id="submit-password-btn">
+            Xác nhận
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editor Modal -->
+    <div id="editor-modal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close" id="close-editor-modal">×</span>
+        <h2 id="editor-title" class="modal-header"></h2>
+        <input type="hidden" id="entry-id" />
+
+        <div class="form-group">
+          <label for="editor-name">Tên thư mục (Tên của bạn):</label>
+          <input
+            type="text"
+            id="editor-name"
+            class="form-control"
+            placeholder="Ví dụ: Hoàng Anh"
+          />
+        </div>
+        <div class="form-group">
+          <label for="editor-password">Mật khẩu:</label>
+          <input
+            type="password"
+            id="editor-password"
+            class="form-control"
+            placeholder="Tạo mật khẩu bí mật"
+          />
+        </div>
+        <div class="form-group">
+          <label for="editor-content">Lời nhắn yêu thương:</label>
+          <textarea
+            id="editor-content"
+            class="form-control"
+            placeholder="Viết gì đó vào đây..."
+          ></textarea>
+          <div class="sticker-palette" id="sticker-palette">
+            <span class="sticker">❤️</span>
+            <span class="sticker">✨</span>
+            <span class="sticker">🎉</span>
+            <span class="sticker">😂</span>
+            <span class="sticker">👍</span>
+            <span class="sticker">🌻</span>
+            <span class="sticker">🍓</span>
+            <span class="sticker">🚀</span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="cancel-editor-btn">Hủy</button>
+          <button class="btn btn-primary" id="save-entry-btn">Lưu lại</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- DOM Elements ---
+        const folderGrid = document.getElementById("folder-grid");
+        const emptyState = document.getElementById("empty-state");
+        const addNewBtn = document.getElementById("add-new-btn");
+
+        const passwordModal = document.getElementById("password-modal");
+        const closePasswordModalBtn = document.getElementById(
+          "close-password-modal"
+        );
+        const passwordInput = document.getElementById("password-input");
+        const submitPasswordBtn = document.getElementById(
+          "submit-password-btn"
+        );
+        const cancelPasswordBtn = document.getElementById(
+          "cancel-password-btn"
+        );
+
+        const editorModal = document.getElementById("editor-modal");
+        const closeEditorModalBtn =
+          document.getElementById("close-editor-modal");
+        const editorTitle = document.getElementById("editor-title");
+        const entryIdInput = document.getElementById("entry-id");
+        const editorName = document.getElementById("editor-name");
+        const editorPassword = document.getElementById("editor-password");
+        const editorContent = document.getElementById("editor-content");
+        const saveEntryBtn = document.getElementById("save-entry-btn");
+        const cancelEditorBtn = document.getElementById("cancel-editor-btn");
+        const stickers = document.querySelectorAll(".sticker");
+
+        // --- Data (Simulation of a Database) ---
+        let entries = [];
+        let nextId = 1;
+        let currentEntryId = null;
+
+        // --- Functions ---
+
+        function checkEmptyState() {
+          emptyState.style.display = entries.length === 0 ? "block" : "none";
+        }
+
+        function renderFolders() {
+          folderGrid.innerHTML = "";
+          folderGrid.appendChild(emptyState);
+          checkEmptyState();
+
+          entries.forEach((entry) => {
+            const folderHTML = `
+                    <div class="folder-item" data-id="${entry.id}">
+                        <div class="folder-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/></svg>
+                        </div>
+                        <span class="folder-name">${entry.name}</span>
+                    </div>
+                `;
+            folderGrid.insertAdjacentHTML("beforeend", folderHTML);
+          });
+        }
+
+        const showModal = (modal) => modal.classList.add("active");
+        const hideModal = (modal) => {
+          modal.classList.remove("active");
+          // Reset ID after modal closes
+          currentEntryId = null;
+        };
+
+        // The unified function for opening the editor
+        function openEditor(id = null) {
+          if (id) {
+            // Editing existing entry
+            const entry = entries.find((e) => e.id === id);
+            if (!entry) return;
+
+            editorTitle.textContent = "Chỉnh sửa kỷ niệm";
+            entryIdInput.value = entry.id;
+            editorName.value = entry.name;
+            editorPassword.value = entry.password;
+            editorContent.value = entry.content;
+          } else {
+            // Creating new entry
+            editorTitle.textContent = "Tạo Kỷ Niệm Mới";
+            entryIdInput.value = "";
+            editorName.value = "";
+            editorPassword.value = "";
+            editorContent.value = "";
+          }
+          hideModal(passwordModal);
+          showModal(editorModal);
+        }
+
+        // --- Event Listeners ---
+
+        // 1. Click a folder to trigger password modal
+        folderGrid.addEventListener("click", (e) => {
+          const folderItem = e.target.closest(".folder-item");
+          if (folderItem) {
+            currentEntryId = parseInt(folderItem.dataset.id);
+            passwordInput.value = "";
+            showModal(passwordModal);
+            setTimeout(() => passwordInput.focus(), 100);
+          }
+        });
+
+        // 2. Submit password to open editor
+        submitPasswordBtn.addEventListener("click", () => {
+          const entry = entries.find((e) => e.id === currentEntryId);
+          if (entry && passwordInput.value === entry.password) {
+            openEditor(currentEntryId);
+          } else {
+            alert("Mật khẩu không đúng! Vui lòng thử lại.");
+            passwordInput.select();
+          }
+        });
+
+        // 3. Close/cancel buttons for password modal
+        cancelPasswordBtn.addEventListener("click", () =>
+          hideModal(passwordModal)
+        );
+        closePasswordModalBtn.addEventListener("click", () =>
+          hideModal(passwordModal)
+        );
+
+        // 4. "Add new" button opens a blank editor
+        addNewBtn.addEventListener("click", () => openEditor());
+
+        // 5. Save button handles both creating and updating
+        saveEntryBtn.addEventListener("click", () => {
+          const name = editorName.value.trim();
+          const password = editorPassword.value.trim();
+          const content = editorContent.value.trim();
+          const id = entryIdInput.value ? parseInt(entryIdInput.value) : null;
+
+          if (!name || !password || !content) {
+            alert(
+              "Vui lòng điền đầy đủ thông tin: tên, mật khẩu và lời nhắn nhé!"
+            );
+            return;
+          }
+
+          if (id) {
+            // If there's an ID, update the existing entry
+            const entryToUpdate = entries.find((e) => e.id === id);
+            if (entryToUpdate) {
+              entryToUpdate.name = name;
+              entryToUpdate.password = password;
+              entryToUpdate.content = content;
+            }
+          } else {
+            // No ID, so create a new one
+            entries.push({ id: nextId++, name, password, content });
+          }
+
+          renderFolders();
+          hideModal(editorModal);
+        });
+
+        // 6. Close/cancel buttons for editor modal
+        cancelEditorBtn.addEventListener("click", () => hideModal(editorModal));
+        closeEditorModalBtn.addEventListener("click", () =>
+          hideModal(editorModal)
+        );
+
+        // 7. Sticker functionality
+        stickers.forEach((sticker) => {
+          sticker.addEventListener("click", () => {
+            editorContent.value += sticker.textContent;
+            editorContent.focus();
+          });
+        });
+
+        // --- Initial Load ---
+        renderFolders();
+      });
+    </script>
+  </body>
+</html>
